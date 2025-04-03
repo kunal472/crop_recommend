@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Crop Inspector</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        /* Navbar */
+        nav {
+            background-color: #4CAF50;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        nav a {
+            margin: 0 20px;
+            text-decoration: none;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        nav a:hover {
+            color: #f0f0f0;
+        }
+
+        /* Container */
+        .container {
+            width: 90%;
+            max-width: 600px;
+            margin: 30px auto;
+            background: rgb(221, 214, 214);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1, h2 {
+            color: #4CAF50;
+        }
+
+        input, button, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        /* Chatbot */
+        .chat-container {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+        }
+
+        .chat-box {
+            height: 250px;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        /* Hide sections initially */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="#" onclick="showSection('form')">Crop Recommendation</a>
+        <a href="#" onclick="showSection('chatbot')">Chatbot</a>
+        <a href="#" onclick="showSection('about')">About Us</a>
+    </nav>
+
+    <!-- Crop Recommendation Form -->
+    <div id="form" class="container">
+        <h1>Crop Recommendation System</h1>
+        <form id="predictionForm">
+            <label for="N">Nitrogen (N):</label>
+            <input type="number" id="N" name="N" required>
+
+            <label for="K">Potassium (K):</label>
+            <input type="number" id="K" name="K" required>
+
+            <label for="P">Phosphorus (P):</label>
+            <input type="number" id="P" name="P" required>
+
+            <label for="temperature">Temperature (°C):</label>
+            <input type="number" id="temperature" name="temperature" required>
+
+            <label for="humidity">Humidity (%):</label>
+            <input type="number" id="humidity" name="humidity" required>
+
+            <label for="ph">pH Level:</label>
+            <input type="number" id="ph" name="ph" step="0.1" required>
+
+            <label for="rainfall">Rainfall (mm):</label>
+            <input type="number" id="rainfall" name="rainfall" required>
+
+            <button type="button" onclick="submitForm()">Predict</button>
+        </form>
+        <h2 id="result"></h2>
+    </div>
+
+    <!-- Chatbot -->
+    <div id="chatbot" class="container hidden">
+        <h2>AI Crop Inspector Chatbot</h2>
+        <div class="chat-box" id="chat-box"></div>
+        <input type="text" id="user-input" placeholder="Ask about crops...">
+        <button onclick="sendMessage()">Send</button>
+
+        <h3>Upload Plant Image for Inspection</h3>
+        <input type="file" id="image-upload">
+        <button onclick="uploadImage()">Upload</button>
+        <div id="image-response"></div>
+    </div>
+
+    <!-- About Us -->
+    <div id="about" class="container hidden">
+        <h2>About Us</h2>
+        <p>This AI Crop Inspector helps farmers diagnose crop issues using AI. We analyze images and provide solutions to improve yield.</p>
+        <p>Contact: example@example.com</p>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            document.getElementById('form').classList.add('hidden');
+            document.getElementById('chatbot').classList.add('hidden');
+            document.getElementById('about').classList.add('hidden');
+            document.getElementById(sectionId).classList.remove('hidden');
+        }
+
+        function submitForm() {
+            const form = document.getElementById('predictionForm');
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = parseFloat(value);
+            });
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerText = data.error ? 'Error: ' + data.error : 'Recommended Crop: ' + data.crop;
+            })
+            .catch(error => {
+                document.getElementById('result').innerText = 'Error: ' + error.message;
+            });
+        }
+
+        function sendMessage() {
+            let userInput = document.getElementById('user-input').value.trim();
+            if (!userInput) return;
+            
+            let chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML += `<p><b>You:</b> ${userInput}</p>`;
+
+            fetch('/chatbot-response', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                chatBox.innerHTML += `<p><b>Bot:</b> ${data.response}</p>`;
+                document.getElementById('user-input').value = "";
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+        }
+
+        function uploadImage() {
+            let imageInput = document.getElementById('image-upload').files[0];
+            if (!imageInput) return alert("Please select an image!");
+
+            let formData = new FormData();
+            formData.append('image', imageInput);
+
+            fetch('/upload-image', { method: 'POST', body: formData })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('image-response').innerHTML = `<p><b>Diagnosis:</b> ${data.response}</p><img src="${data.image_url}" alt="Uploaded Image">`;
+            });
+        }
+
+        showSection('form'); 
+    </script>
+</body>
+</html>
