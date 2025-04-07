@@ -1,6 +1,4 @@
-Sure! Here's a clean and professional `README.md` for your project [Crop Recommend](https://github.com/kunal472/crop_recommend.git):
 
----
 
 # 🌾 Crop Recommend
 
@@ -8,7 +6,7 @@ A smart crop recommendation system powered by machine learning and Google Genera
 
 ## 🚀 Live Demo
 
-> 🔗 [Coming Soon or add deployment link here]
+> 🔗https://crop-recommend-wb46.onrender.com
 
 ---
 
