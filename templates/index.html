@@ -90,6 +90,23 @@
             border-radius: 5px;
             margin-bottom: 10px;
         }
+        #about {
+            padding: 30px;
+            background-color: #f7fdf7;
+            border-radius: 10px;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        #about h3 {
+            margin-top: 20px;
+            color: #2d7a2d;
+        }
+
+        #about ul {
+            list-style-type: disc;
+            margin-left: 20px;
+        }
 
         /* Hide sections initially */
         .hidden {
@@ -141,19 +158,39 @@
         <div class="chat-box" id="chat-box"></div>
         <input type="text" id="user-input" placeholder="Ask about crops...">
         <button onclick="sendMessage()">Send</button>
-
-        <h3>Upload Plant Image for Inspection</h3>
-        <input type="file" id="image-upload">
-        <button onclick="uploadImage()">Upload</button>
-        <div id="image-response"></div>
     </div>
 
     <!-- About Us -->
     <div id="about" class="container hidden">
         <h2>About Us</h2>
-        <p>This AI Crop Inspector helps farmers diagnose crop issues using AI. We analyze images and provide solutions to improve yield.</p>
-        <p>Contact: example@example.com</p>
+        <p><strong>AI Crop Inspector</strong> is your intelligent farming assistant designed to empower farmers with fast, accurate, and actionable insights using cutting-edge AI technology.</p>
+    
+        <h3>🌱 Our Mission</h3>
+        <p>To revolutionize agriculture by providing easy-to-use, AI-powered tools that help farmers diagnose crop issues, improve soil health, and boost productivity — sustainably.</p>
+    
+        <h3>🔍 What We Do</h3>
+        <ul>
+            <li>Analyze crop images to detect diseases and nutrient deficiencies</li>
+            <li>Provide expert recommendations for pest control and treatment</li>
+            <li>Suggest crop rotation and soil improvement strategies</li>
+            <li>Support sustainable farming practices</li>
+        </ul>
+    
+        <h3>👨‍🌾 Who We Help</h3>
+        <p>From smallholder farmers to large-scale agricultural enterprises, our tools are built for everyone who wants to grow healthier crops with confidence.</p>
+    
+        <h3>📬 Contact Us</h3>
+        <p>We'd love to hear from you! Reach out for support, feedback, or collaboration.</p>
+        <ul>
+            <li>Email: <a href="mailto:example@example.com">example@example.com</a></li>
+            <li>Phone: +1-800-123-4567</li>
+            <li>Location: RuralTech Innovations, AgriHub Road, Greenfields</li>
+        </ul>
+    
+        <h3>🤝 Meet the Team</h3>
+        <p>Agronomists, data scientists, and software engineers working together to bridge the gap between AI and agriculture.</p>
     </div>
+    
 
     <script>
         function showSection(sectionId) {
@@ -186,39 +223,61 @@
         }
 
         function sendMessage() {
-            let userInput = document.getElementById('user-input').value.trim();
-            if (!userInput) return;
-            
-            let chatBox = document.getElementById('chat-box');
-            chatBox.innerHTML += `<p><b>You:</b> ${userInput}</p>`;
+    let userInput = document.getElementById('user-input').value.trim();
+    if (!userInput) return;
 
-            fetch('/chatbot-response', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userInput })
-            })
-            .then(response => response.json())
-            .then(data => {
-                chatBox.innerHTML += `<p><b>Bot:</b> ${data.response}</p>`;
-                document.getElementById('user-input').value = "";
-                chatBox.scrollTop = chatBox.scrollHeight;
+    let chatBox = document.getElementById('chat-box');
+    chatBox.innerHTML += `<p><b>You:</b> ${userInput}</p>`;
+    document.getElementById('user-input').value = "";
+
+    let botMessage = document.createElement('p');
+    botMessage.innerHTML = `<b>Bot:</b> <span id="bot-typing"></span>`;
+    chatBox.appendChild(botMessage);
+
+    fetch('/chatbot-response', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userInput })
+    })
+    .then(response => {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let botText = '';
+
+        function read() {
+            return reader.read().then(({ done, value }) => {
+                if (done) return;
+
+                let chunk = decoder.decode(value, { stream: true });
+                botText += chunk;
+
+                // Format as it comes in
+                let formatted = botText
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/(?:\*|_)(.*?)(?:\*|_)/g, '<em>$1</em>')
+                    .replace(/`(.*?)`/g, '<code>$1</code>')
+                    .replace(/\n/g, '<br>')
+                    .replace(/(?:^|\<br\>)\- (.*?)(?=\<br\>|$)/g, '<li>$1</li>');
+
+                if (formatted.includes('<li>')) {
+                    formatted = `<ul>${formatted}</ul>`;
+                }
+
+                document.getElementById('bot-typing').innerHTML = formatted;
+
+                return read();
             });
         }
 
-        function uploadImage() {
-            let imageInput = document.getElementById('image-upload').files[0];
-            if (!imageInput) return alert("Please select an image!");
+        return read();
+    })
+    .then(() => {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+}
 
-            let formData = new FormData();
-            formData.append('image', imageInput);
 
-            fetch('/upload-image', { method: 'POST', body: formData })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('image-response').innerHTML = `<p><b>Diagnosis:</b> ${data.response}</p><img src="${data.image_url}" alt="Uploaded Image">`;
-            });
-        }
-
+        
         showSection('form'); 
     </script>
 </body>

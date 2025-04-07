@@ -1,27 +1,22 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Response, request, stream_with_context, jsonify,Flask, render_template
+import time
 import joblib  # Changed from pickle to joblib for loading model
 import numpy as np  # For data processing
 import google.generativeai as genai  # For AI API
+from dotenv import load_dotenv
 import os
-from werkzeug.utils import secure_filename
-from PIL import Image
-import io
 
 app = Flask(__name__)
 
+load_dotenv()
 # 🔹 Load ML Model for Crop Prediction
 MODEL_PATH = "smart-agriculture.joblib"  # Ensure this file exists
 crop_model = joblib.load(MODEL_PATH)  # Load the joblib model
 
 # 🔹 Configure AI API (Gemini for Chatbot & Image Analysis)
-genai.configure(api_key="")  # Replace with your API Key
+genai.configure(api_key=os.getenv("GENAI")) # Replace with your API Key
 chatbot_model = genai.GenerativeModel('gemini-2.0-flash')  # Text AI for Chatbot
-vision_model = genai.GenerativeModel('gemini-2.0-flash')  # Image AI for Analysis
 
-# 🔹 Configure Upload Folder for Images
-UPLOAD_FOLDER = 'static/uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route('/')
 def home():
@@ -48,14 +43,13 @@ def predict_crop():
     except Exception as e:
         return jsonify({"error": f"Error processing crop prediction: {str(e)}"}), 500
 
-# 🔹 Chatbot API (AI-Powered)
 @app.route('/chatbot-response', methods=['POST'])
 def chatbot_response():
-    """Handles chatbot queries with an AI agricultural expert role."""
+    """Streams chatbot response like it's typing."""
     user_message = request.json.get("message", "").strip()
 
     if not user_message:
-        return jsonify({"response": "Please enter a valid question."}), 400
+        return Response("Please enter a valid question.", status=400)
 
     try:
         # Assign a role to the chatbot
@@ -67,48 +61,21 @@ def chatbot_response():
         Question: {user_message}
         """
 
-        response = chatbot_model.generate_content(prompt)
-        bot_reply = response.text.strip() if response.text else "Sorry, I couldn't understand."
+        def generate():
+            response = chatbot_model.generate_content(prompt)
+            bot_reply = response.text.strip() if response.text else "Sorry, I couldn't understand."
 
-        return jsonify({"response": bot_reply})
+            # You can stream word-by-word instead of character-by-character
+            for word in bot_reply.split():
+                yield word + " "
+                time.sleep(0.05)  # simulate typing delay
 
-    except Exception as e:
-        return jsonify({"response": f"Error processing request: {str(e)}"}), 500
-
-# 🔹 Image Analysis API (AI-Powered)
-@app.route('/upload-image', methods=['POST'])
-def upload_image():
-    """Handles image uploads for plant health analysis and disease detection."""
-    if 'image' not in request.files:
-        return jsonify({"error": "No image uploaded"}), 400
-
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({"error": "No selected file"}), 400
-
-    # Secure and Save Image
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(file_path)
-
-    try:
-        # Process Image using AI API
-        img = Image.open(file_path)
-        img_byte_arr = io.BytesIO()
-        img.save(img_byte_arr, format='JPEG')  # Convert to JPEG
-        img_byte_arr = img_byte_arr.getvalue()
-
-        response = vision_model.generate_content([
-            "Analyze this plant image and provide plant name and any diseases present and its possible solution.",
-            genai.Part.from_data(mime_type='image/jpeg', data=img_byte_arr)
-        ])
-        
-        diagnosis = response.text.strip() if response.text else "No diagnosis available."
-
-        return jsonify({"response": diagnosis, "image_url": f"/{file_path}"})
+        return Response(stream_with_context(generate()), content_type='text/plain')
 
     except Exception as e:
-        return jsonify({"error": f"Error processing image: {str(e)}"}), 500
+        return Response(f"Error processing request: {str(e)}", status=500)
+
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
+
