@@ -1,5 +1,7 @@
 Flask==2.3.3
 python-dotenv==1.0.1
 numpy==1.26.4
-google-generativeai==0.4.1
+pandas
+scikit-learn
 joblib==1.4.0
+google-generativeai==0.4.1
