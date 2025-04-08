@@ -68,7 +68,7 @@ def chatbot_response():
             # You can stream word-by-word instead of character-by-character
             for word in bot_reply.split():
                 yield word + " "
-                time.sleep(0.05)  # simulate typing delay
+                time.sleep(0.03)  # simulate typing delay
 
         return Response(stream_with_context(generate()), content_type='text/plain')
 

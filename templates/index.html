@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Crop Inspector</title>
     <style>
-        /* General Styles */
         body {
             font-family: 'Arial', sans-serif;
             margin: 0;
@@ -13,14 +12,14 @@
             background-color: #f8f9fa;
             color: #333;
         }
-        
-        /* Navbar */
+
         nav {
             background-color: #4CAF50;
             padding: 15px;
             text-align: center;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         nav a {
             margin: 0 20px;
             text-decoration: none;
@@ -29,11 +28,11 @@
             font-weight: bold;
             transition: 0.3s;
         }
+
         nav a:hover {
             color: #f0f0f0;
         }
 
-        /* Container */
         .container {
             width: 90%;
             max-width: 600px;
@@ -64,6 +63,7 @@
             cursor: pointer;
             transition: 0.3s;
         }
+
         button:hover {
             background-color: #45a049;
         }
@@ -74,7 +74,6 @@
             margin-top: 10px;
         }
 
-        /* Chatbot */
         .chat-container {
             border: 1px solid #ddd;
             padding: 15px;
@@ -90,6 +89,7 @@
             border-radius: 5px;
             margin-bottom: 10px;
         }
+
         #about {
             padding: 30px;
             background-color: #f7fdf7;
@@ -108,177 +108,195 @@
             margin-left: 20px;
         }
 
-        /* Hide sections initially */
         .hidden {
             display: none;
+        }
+
+        #stopBtn {
+            background-color: #d9534f;
         }
     </style>
 </head>
 <body>
 
-    <nav>
-        <a href="#" onclick="showSection('form')">Crop Recommendation</a>
-        <a href="#" onclick="showSection('chatbot')">Chatbot</a>
-        <a href="#" onclick="showSection('about')">About Us</a>
-    </nav>
+<nav>
+    <a href="#" onclick="showSection('form')">Crop Recommendation</a>
+    <a href="#" onclick="showSection('chatbot')">Chatbot</a>
+    <a href="#" onclick="showSection('about')">About Us</a>
+</nav>
 
-    <!-- Crop Recommendation Form -->
-    <div id="form" class="container">
-        <h1>Crop Recommendation System</h1>
-        <form id="predictionForm">
-            <label for="N">Nitrogen (N):</label>
-            <input type="number" id="N" name="N" required>
+<!-- Crop Recommendation Form -->
+<div id="form" class="container">
+    <h1>Crop Recommendation System</h1>
+    <form id="predictionForm">
+        <label for="N">Nitrogen (N):</label>
+        <input type="number" id="N" name="N" required>
 
-            <label for="K">Potassium (K):</label>
-            <input type="number" id="K" name="K" required>
+        <label for="K">Potassium (K):</label>
+        <input type="number" id="K" name="K" required>
 
-            <label for="P">Phosphorus (P):</label>
-            <input type="number" id="P" name="P" required>
+        <label for="P">Phosphorus (P):</label>
+        <input type="number" id="P" name="P" required>
 
-            <label for="temperature">Temperature (°C):</label>
-            <input type="number" id="temperature" name="temperature" required>
+        <label for="temperature">Temperature (°C):</label>
+        <input type="number" id="temperature" name="temperature" required>
 
-            <label for="humidity">Humidity (%):</label>
-            <input type="number" id="humidity" name="humidity" required>
+        <label for="humidity">Humidity (%):</label>
+        <input type="number" id="humidity" name="humidity" required>
 
-            <label for="ph">pH Level:</label>
-            <input type="number" id="ph" name="ph" step="0.1" required>
+        <label for="ph">pH Level:</label>
+        <input type="number" id="ph" name="ph" step="0.1" required>
 
-            <label for="rainfall">Rainfall (mm):</label>
-            <input type="number" id="rainfall" name="rainfall" required>
+        <label for="rainfall">Rainfall (mm):</label>
+        <input type="number" id="rainfall" name="rainfall" required>
 
-            <button type="button" onclick="submitForm()">Predict</button>
-        </form>
-        <h2 id="result"></h2>
-    </div>
+        <button type="button" onclick="submitForm()">Predict</button>
+    </form>
+    <h2 id="result"></h2>
+</div>
 
-    <!-- Chatbot -->
-    <div id="chatbot" class="container hidden">
-        <h2>AI Crop Inspector Chatbot</h2>
-        <div class="chat-box" id="chat-box"></div>
-        <input type="text" id="user-input" placeholder="Ask about crops...">
-        <button onclick="sendMessage()">Send</button>
-    </div>
+<!-- Chatbot -->
+<div id="chatbot" class="container hidden">
+    <h2>AI Crop Inspector Chatbot</h2>
+    <div class="chat-box" id="chat-box"></div>
+    <input type="text" id="user-input" placeholder="Ask about crops...">
+    <button onclick="sendMessage()">Send</button>
+    <button onclick="stopBot()" id="stopBtn">Stop</button>
+</div>
 
-    <!-- About Us -->
-    <div id="about" class="container hidden">
-        <h2>About Us</h2>
-        <p><strong>AI Crop Inspector</strong> is your intelligent farming assistant designed to empower farmers with fast, accurate, and actionable insights using cutting-edge AI technology.</p>
-    
-        <h3>🌱 Our Mission</h3>
-        <p>To revolutionize agriculture by providing easy-to-use, AI-powered tools that help farmers diagnose crop issues, improve soil health, and boost productivity — sustainably.</p>
-    
-        <h3>🔍 What We Do</h3>
-        <ul>
-            <li>Analyze crop images to detect diseases and nutrient deficiencies</li>
-            <li>Provide expert recommendations for pest control and treatment</li>
-            <li>Suggest crop rotation and soil improvement strategies</li>
-            <li>Support sustainable farming practices</li>
-        </ul>
-    
-        <h3>👨‍🌾 Who We Help</h3>
-        <p>From smallholder farmers to large-scale agricultural enterprises, our tools are built for everyone who wants to grow healthier crops with confidence.</p>
-    
-        <h3>📬 Contact Us</h3>
-        <p>We'd love to hear from you! Reach out for support, feedback, or collaboration.</p>
-        <ul>
-            <li>Email: <a href="mailto:example@example.com">example@example.com</a></li>
-            <li>Phone: +1-800-123-4567</li>
-            <li>Location: RuralTech Innovations, AgriHub Road, Greenfields</li>
-        </ul>
-    
-        <h3>🤝 Meet the Team</h3>
-        <p>Agronomists, data scientists, and software engineers working together to bridge the gap between AI and agriculture.</p>
-    </div>
-    
+<!-- About Us -->
+<div id="about" class="container hidden">
+    <h2>About Us</h2>
+    <p><strong>AI Crop Inspector</strong> is your intelligent farming assistant designed to empower farmers with fast, accurate, and actionable insights using cutting-edge AI technology.</p>
 
-    <script>
-        function showSection(sectionId) {
-            document.getElementById('form').classList.add('hidden');
-            document.getElementById('chatbot').classList.add('hidden');
-            document.getElementById('about').classList.add('hidden');
-            document.getElementById(sectionId).classList.remove('hidden');
-        }
+    <h3>🌱 Our Mission</h3>
+    <p>To revolutionize agriculture by providing easy-to-use, AI-powered tools that help farmers diagnose crop issues, improve soil health, and boost productivity — sustainably.</p>
 
-        function submitForm() {
-            const form = document.getElementById('predictionForm');
-            const formData = new FormData(form);
-            const data = {};
-            formData.forEach((value, key) => {
-                data[key] = parseFloat(value);
-            });
+    <h3>🔍 What We Do</h3>
+    <ul>
+        <li>Analyze crop images to detect diseases and nutrient deficiencies</li>
+        <li>Provide expert recommendations for pest control and treatment</li>
+        <li>Suggest crop rotation and soil improvement strategies</li>
+        <li>Support sustainable farming practices</li>
+    </ul>
 
-            fetch('/predict', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('result').innerText = data.error ? 'Error: ' + data.error : 'Recommended Crop: ' + data.crop;
-            })
-            .catch(error => {
-                document.getElementById('result').innerText = 'Error: ' + error.message;
-            });
-        }
+    <h3>👨‍🌾 Who We Help</h3>
+    <p>From smallholder farmers to large-scale agricultural enterprises, our tools are built for everyone who wants to grow healthier crops with confidence.</p>
 
-        function sendMessage() {
-    let userInput = document.getElementById('user-input').value.trim();
-    if (!userInput) return;
+    <h3>📬 Contact Us</h3>
+    <ul>
+        <li>Email: <a href="mailto:example@example.com">example@example.com</a></li>
+        <li>Phone: +1-800-123-4567</li>
+        <li>Location: RuralTech Innovations, AgriHub Road, Greenfields</li>
+    </ul>
 
-    let chatBox = document.getElementById('chat-box');
-    chatBox.innerHTML += `<p><b>You:</b> ${userInput}</p>`;
-    document.getElementById('user-input').value = "";
+    <h3>🤝 Meet the Team</h3>
+    <p>Agronomists, data scientists, and software engineers working together to bridge the gap between AI and agriculture.</p>
+</div>
 
-    let botMessage = document.createElement('p');
-    botMessage.innerHTML = `<b>Bot:</b> <span id="bot-typing"></span>`;
-    chatBox.appendChild(botMessage);
+<script>
+    let controller = null;
 
-    fetch('/chatbot-response', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userInput })
-    })
-    .then(response => {
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let botText = '';
+    function showSection(sectionId) {
+        document.getElementById('form').classList.add('hidden');
+        document.getElementById('chatbot').classList.add('hidden');
+        document.getElementById('about').classList.add('hidden');
+        document.getElementById(sectionId).classList.remove('hidden');
+    }
 
-        function read() {
-            return reader.read().then(({ done, value }) => {
-                if (done) return;
+    function submitForm() {
+        const form = document.getElementById('predictionForm');
+        const formData = new FormData(form);
+        const data = {};
+        formData.forEach((value, key) => {
+            data[key] = parseFloat(value);
+        });
 
-                let chunk = decoder.decode(value, { stream: true });
-                botText += chunk;
+        fetch('/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('result').innerText = data.error ? 'Error: ' + data.error : 'Recommended Crop: ' + data.crop;
+        })
+        .catch(error => {
+            document.getElementById('result').innerText = 'Error: ' + error.message;
+        });
+    }
 
-                // Format as it comes in
-                let formatted = botText
-                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                    .replace(/(?:\*|_)(.*?)(?:\*|_)/g, '<em>$1</em>')
-                    .replace(/`(.*?)`/g, '<code>$1</code>')
-                    .replace(/\n/g, '<br>')
-                    .replace(/(?:^|\<br\>)\- (.*?)(?=\<br\>|$)/g, '<li>$1</li>');
+    function sendMessage() {
+        let userInput = document.getElementById('user-input').value.trim();
+        if (!userInput) return;
 
-                if (formatted.includes('<li>')) {
-                    formatted = `<ul>${formatted}</ul>`;
-                }
+        let chatBox = document.getElementById('chat-box');
+        chatBox.innerHTML += `<p><b>You:</b> ${userInput}</p>`;
+        document.getElementById('user-input').value = "";
 
-                document.getElementById('bot-typing').innerHTML = formatted;
+        let botMessage = document.createElement('p');
+        botMessage.innerHTML = `<b>Bot:</b> <span id="bot-typing"></span>`;
+        chatBox.appendChild(botMessage);
 
-                return read();
-            });
-        }
-
-        return read();
-    })
-    .then(() => {
         chatBox.scrollTop = chatBox.scrollHeight;
-    });
-}
 
+        controller = new AbortController();
 
-        
-        showSection('form'); 
-    </script>
+        fetch('/chatbot-response', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: userInput }),
+            signal: controller.signal
+        })
+        .then(response => {
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let botText = '';
+
+            function read() {
+                return reader.read().then(({ done, value }) => {
+                    if (done) return;
+
+                    let chunk = decoder.decode(value, { stream: true });
+                    botText += chunk;
+
+                    let lines = botText.split('\n').map(line => {
+                        if (line.trim().startsWith('- ')) {
+                            return '• ' + line.trim().slice(2);
+                        }
+                        return line.trim();
+                    });
+
+                    let formatted = lines.join('<br>')
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/(?:\*|_)(.*?)(?:\*|_)/g, '<em>$1</em>')
+                        .replace(/`(.*?)`/g, '<code>$1</code>');
+
+                    document.getElementById('bot-typing').innerHTML = formatted;
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                    return read();
+                });
+            }
+
+            return read();
+        })
+        .catch(err => {
+            if (err.name === 'AbortError') {
+                document.getElementById('bot-typing').innerHTML += "<br><em>Response stopped by user.</em>";
+            } else {
+                document.getElementById('bot-typing').innerHTML += "<br><em>Error: " + err.message + "</em>";
+            }
+        });
+    }
+
+    function stopBot() {
+        if (controller) {
+            controller.abort();
+        }
+    }
+
+    showSection('form');
+</script>
+
 </body>
 </html>
